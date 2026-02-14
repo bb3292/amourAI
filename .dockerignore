@@ -1,0 +1,10 @@
+node_modules/
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.db
+.env
+.git/
+.DS_Store
+*.swp

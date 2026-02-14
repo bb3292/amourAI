@@ -1,7 +1,10 @@
 import os
 from dotenv import load_dotenv
 
-load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
+# Load .env from parent dir (local dev) or current dir (production)
+_here = os.path.dirname(os.path.abspath(__file__))
+load_dotenv(os.path.join(_here, '..', '.env'))
+load_dotenv(os.path.join(_here, '.env'))  # fallback for production
 
 # ── Core API Keys ──────────────────────────────────────────
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
@@ -10,9 +13,11 @@ BLAXEL_WORKSPACE = os.getenv("BLAXEL_WORKSPACE", "")
 WHITECIRCLE_API_KEY = os.getenv("WHITECIRCLE_API_KEY", "")
 
 # ── Database ───────────────────────────────────────────────
-DATABASE_URL = "sqlite+aiosqlite:///./dlcrc.db"
-SYNC_DATABASE_URL = "sqlite:///./dlcrc.db"
-BACKEND_PORT = int(os.getenv("BACKEND_PORT", "8000"))
+_DB_DIR = os.path.dirname(os.path.abspath(__file__))
+_DB_PATH = os.path.join(_DB_DIR, "dlcrc.db")
+DATABASE_URL = f"sqlite+aiosqlite:///{_DB_PATH}"
+SYNC_DATABASE_URL = f"sqlite:///{_DB_PATH}"
+BACKEND_PORT = int(os.getenv("PORT", os.getenv("BACKEND_PORT", "8000")))
 
 # ── Anthropic model config ─────────────────────────────────
 CLAUDE_MODEL = "claude-sonnet-4-5-20250929"

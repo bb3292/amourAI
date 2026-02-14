@@ -9,10 +9,13 @@ Tech Stack:
   - Lovable: Frontend UI framework
 """
 import logging
+import os
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from config import (
     BACKEND_PORT,
@@ -122,6 +125,28 @@ async def get_config():
             "lovable": True,
         },
     }
+
+
+# ── Serve frontend static build (production) ──────────────────
+# In production, the frontend is pre-built into ../frontend/dist.
+# FastAPI serves it as a SPA with a catch-all fallback.
+# This MUST be registered last so /api/* routes take priority.
+_FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend" / "dist"
+if _FRONTEND_DIR.is_dir():
+    from fastapi.responses import FileResponse
+
+    # Serve Vite-hashed assets (JS, CSS, images)
+    app.mount("/assets", StaticFiles(directory=str(_FRONTEND_DIR / "assets")), name="assets")
+
+    @app.get("/{catch_all:path}")
+    async def spa_fallback(catch_all: str):
+        """Serve index.html for all non-API routes (SPA client-side routing)."""
+        file = _FRONTEND_DIR / catch_all
+        if catch_all and file.is_file():
+            return FileResponse(file)
+        return FileResponse(_FRONTEND_DIR / "index.html")
+
+    logger.info(f"Serving frontend from {_FRONTEND_DIR}")
 
 
 if __name__ == "__main__":
