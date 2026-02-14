@@ -8,59 +8,44 @@ interface Props {
 }
 
 const SIZES = {
-  sm: 'w-8 h-8 text-xs',
-  md: 'w-10 h-10 text-sm',
-  lg: 'w-14 h-14 text-base',
-  xl: 'w-20 h-20 text-xl',
+  sm: 'w-7 h-7 text-[10px]',
+  md: 'w-10 h-10 text-xs',
+  lg: 'w-12 h-12 text-sm',
+  xl: 'w-16 h-16 text-lg',
 };
 
 const COLORS = [
-  'from-blue-500 to-blue-600',
-  'from-purple-500 to-purple-600',
-  'from-emerald-500 to-emerald-600',
-  'from-rose-500 to-rose-600',
-  'from-amber-500 to-amber-600',
-  'from-cyan-500 to-cyan-600',
-  'from-indigo-500 to-indigo-600',
-  'from-pink-500 to-pink-600',
-  'from-teal-500 to-teal-600',
-  'from-orange-500 to-orange-600',
+  'from-brand-500 to-purple-500',
+  'from-purple-500 to-pink-500',
+  'from-emerald-500 to-teal-500',
+  'from-rose-500 to-red-500',
+  'from-amber-500 to-orange-500',
+  'from-cyan-500 to-blue-500',
+  'from-brand-400 to-brand-600',
+  'from-pink-500 to-rose-500',
+  'from-teal-500 to-emerald-500',
+  'from-orange-500 to-amber-500',
 ];
 
-/** Extract domain from a URL or competitor name for logo lookup */
 function getDomain(name: string, url?: string | null): string | null {
-  // If we have a URL, extract domain
   if (url) {
     try {
       const parsed = new URL(url.startsWith('http') ? url : `https://${url}`);
       return parsed.hostname.replace('www.', '');
-    } catch {
-      // fall through
-    }
+    } catch { /* fall through */ }
   }
-  // Guess domain from name: "Salesforce" -> "salesforce.com"
   const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '');
-  if (slug.length > 0) {
-    return `${slug}.com`;
-  }
+  if (slug.length > 0) return `${slug}.com`;
   return null;
 }
 
 function getInitials(name: string): string {
-  return name
-    .split(/\s+/)
-    .map(w => w[0])
-    .filter(Boolean)
-    .slice(0, 2)
-    .join('')
-    .toUpperCase();
+  return name.split(/\s+/).map(w => w[0]).filter(Boolean).slice(0, 2).join('').toUpperCase();
 }
 
 function hashColor(name: string): string {
   let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  }
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
   return COLORS[Math.abs(hash) % COLORS.length];
 }
 
@@ -92,7 +77,7 @@ export default function CompetitorLogo({ name, url, size = 'md', className = '' 
 
   if (!imgError && currentUrl) {
     return (
-      <div className={`${sizeClass} rounded-xl overflow-hidden flex-shrink-0 bg-white border border-gray-100 flex items-center justify-center ${className}`}>
+      <div className={`${sizeClass} rounded-xl overflow-hidden flex-shrink-0 bg-surface border border-white/[0.08] flex items-center justify-center ${className}`}>
         <img
           src={currentUrl}
           alt={`${name} logo`}
@@ -104,7 +89,6 @@ export default function CompetitorLogo({ name, url, size = 'md', className = '' 
     );
   }
 
-  // Fallback: gradient initials
   return (
     <div className={`${sizeClass} rounded-xl bg-gradient-to-br ${colorClass} flex items-center justify-center flex-shrink-0 text-white font-bold shadow-sm ${className}`}>
       {initials}
@@ -112,7 +96,6 @@ export default function CompetitorLogo({ name, url, size = 'md', className = '' 
   );
 }
 
-/** Smaller inline logo for use in tables and lists */
 export function CompetitorLogoInline({ name, url }: { name: string; url?: string | null }) {
   return <CompetitorLogo name={name} url={url} size="sm" />;
 }

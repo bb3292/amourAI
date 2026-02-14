@@ -1,25 +1,22 @@
 """
 Writer Agent – generates actionable artifacts (battlecards, messaging, roadmap tickets).
+Routes LLM calls through Blaxel model gateway (if configured) or direct Anthropic.
 """
 import json
 import logging
 from typing import Dict, Any, List
 
-import anthropic
-from config import ANTHROPIC_API_KEY, CLAUDE_MODEL, MAX_TOKENS
+from integrations.model_gateway import get_model_gateway
 
 logger = logging.getLogger(__name__)
 
 
 class WriterAgent:
-    """Generates actionable artifacts from themes and insights via Claude."""
+    """Generates actionable artifacts from themes and insights via LLM."""
 
     def __init__(self):
-        if not ANTHROPIC_API_KEY:
-            raise RuntimeError(
-                "ANTHROPIC_API_KEY is not set. Add it to your .env file to use live analysis."
-            )
-        self.client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+        self.gateway = get_model_gateway()
+        logger.info(f"WriterAgent initialized (gateway: {self.gateway.gateway_mode})")
 
     async def generate_artifact(
         self,
@@ -115,14 +112,9 @@ Cite all evidence with [Source - Date] format."""
         return await self._call_llm(prompt, insights)
 
     async def _call_llm(self, prompt: str, insights: List[Dict]) -> Dict[str, str]:
-        """Call Claude and return content + citations."""
+        """Call LLM through gateway and return content + citations."""
         try:
-            response = self.client.messages.create(
-                model=CLAUDE_MODEL,
-                max_tokens=MAX_TOKENS,
-                messages=[{"role": "user", "content": prompt}],
-            )
-            content = response.content[0].text.strip()
+            content = await self.gateway.chat(prompt)
 
             # Build citations from insights
             citations = []
@@ -165,7 +157,7 @@ Cite all evidence with [Source - Date] format."""
         themes: List[Dict[str, Any]],
         insights: List[Dict[str, Any]],
     ) -> str:
-        """Generate a full competitive snapshot report using Claude."""
+        """Generate a full competitive snapshot report."""
         themes_text = json.dumps(themes, indent=2)
         insights_text = json.dumps(insights[:20], indent=2)  # Limit for token budget
 
@@ -190,12 +182,7 @@ Generate a JSON object with these fields:
 Return ONLY valid JSON. All claims must be supported by the themes/insights provided."""
 
         try:
-            response = self.client.messages.create(
-                model=CLAUDE_MODEL,
-                max_tokens=MAX_TOKENS,
-                messages=[{"role": "user", "content": prompt}],
-            )
-            text = response.content[0].text.strip()
+            text = await self.gateway.chat(prompt)
             start = text.find("{")
             end = text.rfind("}") + 1
             if start >= 0 and end > start:

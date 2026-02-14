@@ -1,6 +1,12 @@
 """
 DL-CRC Backend – Decision-Linked Competitive Research Copilot
 FastAPI server with agent pipeline, evaluation, and full CRUD.
+
+Tech Stack:
+  - Blaxel: Agent orchestration & model gateway (if configured)
+  - Anthropic: LLM provider (Claude) for all agent logic
+  - White Circle AI: Quality monitoring & evaluation (if configured)
+  - Lovable: Frontend UI framework
 """
 import logging
 from contextlib import asynccontextmanager
@@ -8,7 +14,13 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from config import BACKEND_PORT, ANTHROPIC_API_KEY
+from config import (
+    BACKEND_PORT,
+    ANTHROPIC_API_KEY,
+    USE_BLAXEL,
+    USE_WHITECIRCLE,
+    BLAXEL_WORKSPACE,
+)
 from database import init_db
 
 # Configure logging
@@ -25,13 +37,28 @@ async def lifespan(app: FastAPI):
     logger.info("Initializing database...")
     await init_db()
 
+    # ── Report integration status ──────────────────────────
     if not ANTHROPIC_API_KEY:
         logger.error(
             "ANTHROPIC_API_KEY is not set! "
             "Add it to .env — the app cannot function without it."
         )
     else:
-        logger.info("DL-CRC backend starting in LIVE mode (Anthropic)")
+        logger.info("Anthropic API key configured")
+
+    if USE_BLAXEL:
+        logger.info(f"Blaxel integration ACTIVE (workspace: {BLAXEL_WORKSPACE})")
+        logger.info("  → LLM calls routed through Blaxel model gateway")
+    else:
+        logger.info("Blaxel integration not configured — using direct Anthropic")
+
+    if USE_WHITECIRCLE:
+        logger.info("White Circle AI integration ACTIVE")
+        logger.info("  → Artifact evaluation via White Circle guardrails")
+    else:
+        logger.info("White Circle AI not configured — using built-in LLM-as-judge")
+
+    logger.info("DL-CRC backend ready")
     yield
     logger.info("DL-CRC backend shutting down")
 
@@ -74,6 +101,12 @@ async def health_check():
         "status": "ok",
         "mode": "live" if ANTHROPIC_API_KEY else "no_api_key",
         "version": "1.0.0",
+        "integrations": {
+            "blaxel": USE_BLAXEL,
+            "anthropic": bool(ANTHROPIC_API_KEY),
+            "whitecircle": USE_WHITECIRCLE,
+            "lovable": True,  # Frontend UI framework
+        },
     }
 
 
@@ -82,6 +115,12 @@ async def get_config():
     return {
         "mode": "live" if ANTHROPIC_API_KEY else "no_api_key",
         "has_api_key": bool(ANTHROPIC_API_KEY),
+        "integrations": {
+            "blaxel": USE_BLAXEL,
+            "anthropic": bool(ANTHROPIC_API_KEY),
+            "whitecircle": USE_WHITECIRCLE,
+            "lovable": True,
+        },
     }
 
 

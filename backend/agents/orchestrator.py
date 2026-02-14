@@ -1,7 +1,7 @@
 """
 Orchestrator – coordinates the full agent pipeline.
-Replaces Blaxel orchestration layer.
-Pipeline: Collect → Cluster → (on action) Write → Evaluate
+Uses Blaxel model gateway for LLM routing (if configured) or direct Anthropic.
+Pipeline: Collect → Cluster → (on action) Write → Evaluate (via White Circle or LLM-as-judge)
 """
 import json
 import logging

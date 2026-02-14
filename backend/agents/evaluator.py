@@ -1,26 +1,32 @@
 """
 Evaluator Agent – scores artifacts for quality, hallucination, evidence, etc.
-Replaces White Circle AI monitoring functionality.
+Uses White Circle AI (if configured) or built-in LLM-as-judge via model gateway.
 """
 import json
 import logging
 from typing import Dict, Any, List
 
-import anthropic
-from config import ANTHROPIC_API_KEY, CLAUDE_MODEL, EVAL_THRESHOLDS
+from config import EVAL_THRESHOLDS, USE_WHITECIRCLE
+from integrations.model_gateway import get_model_gateway
+from integrations.whitecircle import get_whitecircle_client
 
 logger = logging.getLogger(__name__)
 
 
 class EvaluatorAgent:
-    """Evaluates generated artifacts using LLM-as-judge (White Circle replacement)."""
+    """
+    Evaluates generated artifacts using White Circle AI (preferred)
+    or built-in LLM-as-judge through Blaxel/Anthropic model gateway.
+    """
 
     def __init__(self):
-        if not ANTHROPIC_API_KEY:
-            raise RuntimeError(
-                "ANTHROPIC_API_KEY is not set. Add it to your .env file to use live evaluation."
-            )
-        self.client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+        self.whitecircle = get_whitecircle_client()
+        self.gateway = get_model_gateway()
+
+        if self.whitecircle.enabled:
+            logger.info("EvaluatorAgent initialized (White Circle AI)")
+        else:
+            logger.info(f"EvaluatorAgent initialized (LLM-as-judge via {self.gateway.gateway_mode})")
 
     async def evaluate_artifact(
         self,
@@ -33,7 +39,39 @@ class EvaluatorAgent:
         """
         Evaluate an artifact on 5 rubrics (0-1 each).
         Returns scores + flagged status + reason.
+
+        Priority:
+          1. White Circle API (if WHITECIRCLE_API_KEY is set)
+          2. LLM-as-judge via Blaxel/Anthropic gateway (fallback)
         """
+
+        # ── Try White Circle first ────────────────────────────
+        if self.whitecircle.enabled:
+            try:
+                logger.info("━━━ EVALUATOR: Using White Circle AI for artifact evaluation ━━━")
+                result = await self.whitecircle.evaluate_artifact(
+                    artifact_content, artifact_type, theme, insights, citations_json
+                )
+                logger.info(f"━━━ EVALUATOR: White Circle result — overall={result.get('overall_score', '?')}, flagged={result.get('flagged', '?')} ━━━")
+                return result
+            except Exception as e:
+                logger.warning(f"━━━ EVALUATOR: White Circle failed ({e}), falling back to LLM-as-judge ━━━")
+
+        # ── Fallback: LLM-as-judge via gateway ────────────────
+        logger.info("━━━ EVALUATOR: Using LLM-as-judge via model gateway ━━━")
+        return await self._evaluate_with_llm(
+            artifact_content, artifact_type, theme, insights, citations_json
+        )
+
+    async def _evaluate_with_llm(
+        self,
+        artifact_content: str,
+        artifact_type: str,
+        theme: Dict[str, Any],
+        insights: List[Dict[str, Any]],
+        citations_json: str,
+    ) -> Dict[str, Any]:
+        """Evaluate using LLM-as-judge through the model gateway."""
         evidence_summary = self._build_evidence_summary(insights, citations_json)
 
         prompt = f"""You are a competitive intelligence quality auditor. Evaluate the following artifact rigorously.
@@ -63,12 +101,7 @@ Thresholds: relevance>{EVAL_THRESHOLDS['relevance']}, evidence>{EVAL_THRESHOLDS[
 Return ONLY a JSON object with keys: relevance, evidence_coverage, hallucination_risk, actionability, freshness, flag_reason (string or null)."""
 
         try:
-            response = self.client.messages.create(
-                model=CLAUDE_MODEL,
-                max_tokens=1024,
-                messages=[{"role": "user", "content": prompt}],
-            )
-            text = response.content[0].text.strip()
+            text = await self.gateway.chat(prompt, max_tokens=1024)
             start = text.find("{")
             end = text.rfind("}") + 1
             if start >= 0 and end > start:

@@ -1,5 +1,6 @@
 """
 Collector Agent – fetches and parses public web sources, PDFs, and internet research.
+Routes LLM calls through Blaxel model gateway (if configured) or direct Anthropic.
 """
 import io
 import json
@@ -9,11 +10,10 @@ import urllib.parse
 from typing import List, Dict, Tuple
 
 import httpx
-import anthropic
 from bs4 import BeautifulSoup
 from pypdf import PdfReader
 
-from config import ANTHROPIC_API_KEY, CLAUDE_MODEL
+from integrations.model_gateway import get_model_gateway
 
 logger = logging.getLogger(__name__)
 
@@ -292,11 +292,9 @@ class CollectorAgent:
         return entries
 
     async def _ask_claude_for_urls(self, name: str, sector: str) -> List[Dict[str, str]]:
-        """Ask Claude to suggest specific, publicly accessible URLs for research."""
-        if not ANTHROPIC_API_KEY:
-            return []
+        """Ask LLM (via Blaxel/Anthropic gateway) to suggest specific, publicly accessible URLs."""
+        gateway = get_model_gateway()
 
-        client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
         prompt = f"""I need to research the company "{name}" (sector: {sector or 'unknown'}) for competitive intelligence.
 
 Suggest 6-8 specific, real, publicly accessible URLs where I can find:
@@ -319,12 +317,7 @@ Return ONLY a JSON array. URLs must be specific, real pages (not search result p
 - Company's own pricing and feature pages"""
 
         try:
-            response = client.messages.create(
-                model=CLAUDE_MODEL,
-                max_tokens=2048,
-                messages=[{"role": "user", "content": prompt}],
-            )
-            text = response.content[0].text.strip()
+            text = await gateway.chat(prompt, max_tokens=2048)
             start = text.find("[")
             end = text.rfind("]") + 1
             if start >= 0 and end > start:
@@ -341,7 +334,7 @@ Return ONLY a JSON array. URLs must be specific, real pages (not search result p
                 return valid
             return []
         except Exception as e:
-            logger.error(f"Claude URL discovery failed: {e}")
+            logger.error(f"LLM URL discovery failed: {e}")
             return []
 
     async def fetch_research_results(

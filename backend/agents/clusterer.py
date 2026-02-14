@@ -1,30 +1,27 @@
 """
-Clusterer Agent – extracts insights and clusters them into themes using Anthropic.
+Clusterer Agent – extracts insights and clusters them into themes.
+Routes LLM calls through Blaxel model gateway (if configured) or direct Anthropic.
 """
 import json
 import logging
 from typing import List, Dict, Any
 
-import anthropic
-from config import ANTHROPIC_API_KEY, CLAUDE_MODEL, MAX_TOKENS
+from integrations.model_gateway import get_model_gateway
 
 logger = logging.getLogger(__name__)
 
 
 class ClustererAgent:
-    """Extracts insights from text chunks and clusters them into themes via Claude."""
+    """Extracts insights from text chunks and clusters them into themes via LLM."""
 
     def __init__(self):
-        if not ANTHROPIC_API_KEY:
-            raise RuntimeError(
-                "ANTHROPIC_API_KEY is not set. Add it to your .env file to use live analysis."
-            )
-        self.client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+        self.gateway = get_model_gateway()
+        logger.info(f"ClustererAgent initialized (gateway: {self.gateway.gateway_mode})")
 
     async def extract_insights(
         self, chunks: List[str], source_url: str, competitor_name: str
     ) -> List[Dict[str, Any]]:
-        """Extract structured insights from text chunks using Claude."""
+        """Extract structured insights from text chunks using LLM."""
         all_insights = []
         for i, chunk in enumerate(chunks):
             try:
@@ -49,7 +46,7 @@ class ClustererAgent:
     async def _extract_from_chunk(
         self, chunk: str, source_url: str, competitor_name: str
     ) -> List[Dict[str, Any]]:
-        """Use Claude to extract insights from a single chunk."""
+        """Use LLM to extract insights from a single chunk."""
         prompt = f"""Analyze the following text about competitor "{competitor_name}" and extract competitive insights.
 
 TEXT:
@@ -81,13 +78,8 @@ Extract each distinct competitive insight as a JSON object with these fields:
 Return ONLY a JSON array of insight objects. If no meaningful insights, return [].
 Do not include any explanatory text outside the JSON array."""
 
-        response = self.client.messages.create(
-            model=CLAUDE_MODEL,
-            max_tokens=MAX_TOKENS,
-            messages=[{"role": "user", "content": prompt}],
-        )
+        text = await self.gateway.chat(prompt)
 
-        text = response.content[0].text.strip()
         try:
             start = text.find("[")
             end = text.rfind("]") + 1
@@ -101,7 +93,7 @@ Do not include any explanatory text outside the JSON array."""
     async def cluster_into_themes(
         self, insights: List[Dict[str, Any]], competitor_name: str
     ) -> List[Dict[str, Any]]:
-        """Cluster insights into themes with severity scoring using Claude."""
+        """Cluster insights into themes with severity scoring using LLM."""
         if not insights:
             return []
 
@@ -131,13 +123,8 @@ For each theme, provide:
 
 Return ONLY a JSON array of theme objects. Merge similar insights into the same theme. Every insight should belong to at least one theme."""
 
-        response = self.client.messages.create(
-            model=CLAUDE_MODEL,
-            max_tokens=MAX_TOKENS,
-            messages=[{"role": "user", "content": prompt}],
-        )
+        text = await self.gateway.chat(prompt)
 
-        text = response.content[0].text.strip()
         try:
             start = text.find("[")
             end = text.rfind("]") + 1

@@ -94,5 +94,14 @@ export const api = {
   getMonitoring: () => request<MonitoringSummary>('/monitoring'),
 
   // Health
-  health: () => request<{ status: string; mode: string }>('/health'),
+  health: () => request<{
+    status: string;
+    mode: string;
+    integrations?: {
+      blaxel: boolean;
+      anthropic: boolean;
+      whitecircle: boolean;
+      lovable: boolean;
+    };
+  }>('/health'),
 };
