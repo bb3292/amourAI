@@ -1,8 +1,8 @@
-# Decision-Linked Competitive Research Copilot (DL-CRC) - PRD
+# RivalIQ — Competitive Research Copilot - PRD
 
 ### TL;DR
 
-Competitive intelligence (CI) in B2B often devolves into “CI theater”: collecting data without driving decisions or fresh sales enablement. DL-CRC transforms competitor research into decision-linked actions and artifacts, connecting insights from public forums/reviews to deliverables like battlecards, messaging updates, and roadmap tickets—empowering Product Marketing, PM, Sales, and Founders. The hackathon MVP leverages Lovable (UI), Blaxel (agent orchestration), and White Circle AI (output monitoring) to prove fast, evidence-linked CI-to-action workflows.
+Competitive intelligence (CI) in B2B often devolves into “CI theater”: collecting data without driving decisions or fresh sales enablement. RivalIQ transforms competitor research into decision-linked actions and artifacts, connecting insights from public forums/reviews to deliverables like battlecards, messaging updates, and roadmap tickets—empowering Product Marketing, PM, Sales, and Founders. The hackathon MVP leverages Lovable (UI), Blaxel (agent orchestration), and White Circle AI (output monitoring) to prove fast, evidence-linked CI-to-action workflows.
 
 ---
 
@@ -176,7 +176,7 @@ P2: Post-MVP or stretch
 
 **Entry Point & First-Time User Experience**
 
-* Users discover DL-CRC via invite or dashboard link.
+* Users discover RivalIQ via invite or dashboard link.
 
 * First-time onboarding:
 
@@ -258,7 +258,7 @@ P2: Post-MVP or stretch
 
 ## Narrative
 
-Sarah, a Product Marketing Manager at a fast-growing SaaS firm, stumbles upon a series of frustrated Reddit threads about a top competitor’s unreliable API. Using DL-CRC, she pastes the discussion URLs into the dashboard, triggering ingestion and rapid analysis. Within minutes, the system clusters these Reddit complaints into a “API Reliability Weakness” theme, complete with real, cited customer quotes and sentiment grading. Sarah selects the theme, assigns it as a battlecard update for the sales team, and the copilot instantly drafts a new battlecard section, automatically formatted with evidence and a pointed talk track. She reviews and approves the artifact, then generates a snapshot report summarizing the competitor’s primary weaknesses and recommended actions, all ready for export and sharing. By Friday’s sales call, Sarah’s team is armed with timely, actionable intel, increasing sales confidence and ensuring competitive advantage.
+Sarah, a Product Marketing Manager at a fast-growing SaaS firm, stumbles upon a series of frustrated Reddit threads about a top competitor’s unreliable API. Using RivalIQ, she pastes the discussion URLs into the dashboard, triggering ingestion and rapid analysis. Within minutes, the system clusters these Reddit complaints into a “API Reliability Weakness” theme, complete with real, cited customer quotes and sentiment grading. Sarah selects the theme, assigns it as a battlecard update for the sales team, and the copilot instantly drafts a new battlecard section, automatically formatted with evidence and a pointed talk track. She reviews and approves the artifact, then generates a snapshot report summarizing the competitor’s primary weaknesses and recommended actions, all ready for export and sharing. By Friday’s sales call, Sarah’s team is armed with timely, actionable intel, increasing sales confidence and ensuring competitive advantage.
 
 ---
 
@@ -278,7 +278,7 @@ Sarah, a Product Marketing Manager at a fast-growing SaaS firm, stumbles upon a 
 
 * **Battlecard Freshness:** Median days since last battlecard update.
 
-* **Win-Rate Proxy:** % of deals where DL-CRC-enabled artifacts are referenced in CRM notes (pilot measurement).
+* **Win-Rate Proxy:** % of deals where RivalIQ-enabled artifacts are referenced in CRM notes (pilot measurement).
 
 * **Time Saved:** Average hours saved per user per week vs. legacy CI process.
 
@@ -378,7 +378,7 @@ Development is structured in three phases, with each phase specifying deliverabl
 
 ### Tool Roles Summary
 
-| Tool | Role in DL-CRC |
+| Tool | Role in RivalIQ |
 |------|----------------|
 | **Lovable** | Full-stack UI: dashboard, insight feed, theme views, action workflow, artifact preview, snapshot report, monitoring dashboard, onboarding. |
 | **Blaxel** | Agent runtime: Collector, Clusterer, Artifact Writer; orchestration of ingestion → clustering → writing; model gateway to Anthropic. |

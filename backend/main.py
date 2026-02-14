@@ -1,5 +1,5 @@
 """
-DL-CRC Backend – Decision-Linked Competitive Research Copilot
+RivalIQ Backend – Competitive Research Copilot
 FastAPI server with agent pipeline, evaluation, and full CRUD.
 
 Tech Stack:
@@ -61,14 +61,14 @@ async def lifespan(app: FastAPI):
     else:
         logger.info("White Circle AI not configured — using built-in LLM-as-judge")
 
-    logger.info("DL-CRC backend ready")
+    logger.info("RivalIQ backend ready")
     yield
-    logger.info("DL-CRC backend shutting down")
+    logger.info("RivalIQ backend shutting down")
 
 
 app = FastAPI(
-    title="DL-CRC API",
-    description="Decision-Linked Competitive Research Copilot",
+    title="RivalIQ API",
+    description="RivalIQ – Competitive Research Copilot",
     version="1.0.0",
     lifespan=lifespan,
 )

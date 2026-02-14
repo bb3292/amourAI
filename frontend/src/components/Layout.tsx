@@ -29,7 +29,7 @@ const PAGE_TITLES: Record<string, { title: string; subtitle: string }> = {
 export default function Layout({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
-  const pageInfo = PAGE_TITLES[location.pathname] || { title: 'DL-CRC', subtitle: '' };
+  const pageInfo = PAGE_TITLES[location.pathname] || { title: 'RivalIQ', subtitle: '' };
 
   return (
     <div className="flex h-screen overflow-hidden bg-base">
@@ -46,7 +46,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           </div>
           {!collapsed && (
             <div className="overflow-hidden">
-              <h1 className="font-bold text-[15px] text-white tracking-tight truncate">DL-CRC</h1>
+              <h1 className="font-bold text-[15px] text-white tracking-tight truncate">RivalIQ</h1>
               <p className="text-[10px] text-zinc-500 font-medium truncate">Competitive Copilot</p>
             </div>
           )}

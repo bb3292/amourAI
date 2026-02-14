@@ -1,10 +1,10 @@
 # ═══════════════════════════════════════════════════════════════
-# Blaxel Agent Deployment Configuration for DL-CRC
+# Blaxel Agent Deployment Configuration for RivalIQ
 # ═══════════════════════════════════════════════════════════════
 # Deploy with: bl deploy
 # Local dev:   bl serve --hotreload
 
-name = "dlcrc-orchestrator"
+name = "rivaliq-orchestrator"
 type = "agent"
 
 # Resources used by this agent
@@ -13,7 +13,7 @@ functions = []
 agents = []
 
 [env]
-DATABASE_URL = "sqlite+aiosqlite:///./dlcrc.db"
+DATABASE_URL = "sqlite+aiosqlite:///./rivaliq.db"
 
 [runtime]
 timeout = 900       # 15 min max for long pipelines
@@ -24,15 +24,15 @@ prod = "uvicorn main:app --host 0.0.0.0 --port $PORT"
 dev = "uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
 
 [[triggers]]
-  id = "dlcrc-api"
+  id = "rivaliq-api"
   type = "http"
 [triggers.configuration]
-  path = "agents/dlcrc-orchestrator/sync"
+  path = "agents/rivaliq-orchestrator/sync"
   retry = 2
 
 [[triggers]]
-  id = "dlcrc-api-async"
+  id = "rivaliq-api-async"
   type = "http-async"
 [triggers.configuration]
-  path = "agents/dlcrc-orchestrator/async"
+  path = "agents/rivaliq-orchestrator/async"
   retry = 2

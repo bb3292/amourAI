@@ -271,7 +271,7 @@ export default function Dashboard() {
             <div className="w-16 h-16 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center mx-auto mb-4">
               <Zap className="w-8 h-8 text-brand-400" />
             </div>
-            <h3 className="text-lg font-semibold text-white mb-2">Get Started with DL-CRC</h3>
+            <h3 className="text-lg font-semibold text-white mb-2">Get Started with RivalIQ</h3>
             <p className="text-sm text-zinc-500 mb-6 max-w-lg mx-auto leading-relaxed">
               Add your first competitor, ingest source URLs or text, and let the AI pipeline
               extract insights, identify weaknesses, and generate actionable artifacts.

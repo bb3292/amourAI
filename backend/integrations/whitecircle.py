@@ -50,7 +50,7 @@ class WhiteCircleClient:
                 headers={
                     "Authorization": f"Bearer {self.api_key}",
                     "Content-Type": "application/json",
-                    "X-Source": "dlcrc-backend",
+                    "X-Source": "rivaliq-backend",
                 },
                 timeout=30.0,
             )

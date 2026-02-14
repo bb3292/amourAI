@@ -1,1 +1,1 @@
-# DL-CRC Integrations: Blaxel, White Circle, Anthropic
+# RivalIQ Integrations: Blaxel, White Circle, Anthropic

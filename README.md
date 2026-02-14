@@ -1,4 +1,4 @@
-# DL-CRC — Decision-Linked Competitive Research Copilot
+# RivalIQ — Competitive Research Copilot
 
 A full-stack competitive intelligence platform that transforms competitor research into decision-linked actions and artifacts. Paste URLs or text, get AI-powered insights, weakness analysis, battlecards, messaging drafts, roadmap tickets, and quality-monitored reports — in minutes.
 

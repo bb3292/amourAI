@@ -1,5 +1,5 @@
 [project]
-name = "dlcrc-backend"
+name = "rivaliq-backend"
 version = "1.0.0"
 description = "Decision-Linked Competitive Research Copilot - Backend"
 requires-python = ">=3.11"

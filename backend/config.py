@@ -14,7 +14,7 @@ WHITECIRCLE_API_KEY = os.getenv("WHITECIRCLE_API_KEY", "")
 
 # ── Database ───────────────────────────────────────────────
 _DB_DIR = os.path.dirname(os.path.abspath(__file__))
-_DB_PATH = os.path.join(_DB_DIR, "dlcrc.db")
+_DB_PATH = os.path.join(_DB_DIR, "rivaliq.db")
 DATABASE_URL = f"sqlite+aiosqlite:///{_DB_PATH}"
 SYNC_DATABASE_URL = f"sqlite:///{_DB_PATH}"
 BACKEND_PORT = int(os.getenv("PORT", os.getenv("BACKEND_PORT", "8000")))

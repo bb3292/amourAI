@@ -1,5 +1,5 @@
 #!/bin/bash
-# DL-CRC — Decision-Linked Competitive Research Copilot
+# RivalIQ — Competitive Research Copilot
 # Start both backend and frontend servers
 
 set -e
@@ -7,7 +7,7 @@ set -e
 ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 echo "============================================"
-echo "  DL-CRC — Competitive Research Copilot"
+echo "  RivalIQ — Competitive Research Copilot"
 echo "============================================"
 echo ""
 
@@ -55,7 +55,7 @@ echo "  Frontend PID: $FRONTEND_PID (http://localhost:5173)"
 
 echo ""
 echo "============================================"
-echo "  DL-CRC is running!"
+echo "  RivalIQ is running!"
 echo "  Frontend: http://localhost:5173"
 echo "  Backend:  http://localhost:8000"
 echo "  API Docs: http://localhost:8000/docs"
